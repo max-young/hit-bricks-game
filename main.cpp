@@ -5,12 +5,15 @@
 
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+using std::cout; using std::endl;
+
+// 保持窗口和framebuffer大小一致
+void framebufferSizeCallback(GLFWwindow *window, int width, int height);
+// 接受用户输入
 void processInput(GLFWwindow *window);
 
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+constexpr unsigned int SCR_WIDTH = 1600;
+constexpr unsigned int SCR_HEIGHT = 1200;
 
 int main()
 {
@@ -27,23 +30,23 @@ int main()
 #endif
 
   // 创建窗口对象, 参数分别是长、宽、名称, 后面两个参数暂时忽略
-  GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "MaxGame", NULL, NULL);
   if (window == NULL)
   {
-    std::cout << "Failed to create GLFW window" << std::endl;
+    cout << "Failed to create GLFW window" << endl;
     glfwTerminate();
     return -1;
   }
   // 设置这个窗口为上下文
   glfwMakeContextCurrent(window);
   // 回调函数, 注册这个函数，告诉GLFW我们希望每当窗口调整大小的时候调用这个函数
-  // 这个函数将窗口大小和视口大小保持一致
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  // 这个函数将窗口大小和framebuffer大小保持一致
+  glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-  // 调用OpenGL函数之前需要初始化glad2
+  // 调用OpenGL函数之前需要初始化glad
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
   {
-    std::cout << "Failed to initialize GLAD" << std::endl;
+    cout << "Failed to initialize GLAD" << endl;
     return -1;
   }
 
@@ -58,7 +61,7 @@ int main()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // 将缓冲区的像素颜色值绘制到窗口
+    // 将framebuffer的像素颜色值绘制到窗口
     glfwSwapBuffers(window);
     // 检查有没有触发事件
     glfwPollEvents();
@@ -70,14 +73,14 @@ int main()
 }
 
 // 回调函数, 窗口大小改变时, 创建渲染窗口
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
   // 渲染窗口的大小, glViewport函数前两个参数控制窗口左下角的位置。第三个和第四个参数控制渲染窗口的宽度和高度（像素）
   // 图形学里的viewport视口
   glViewport(0, 0, width, height);
 }
 
-// 接受ESC键退出
+// 接受用户输入
 void processInput(GLFWwindow *window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
