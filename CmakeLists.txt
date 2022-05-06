@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(MaxName VERSION 0.1.0)
+project(MaxGame VERSION 0.1.0)
 
 # 使用 C++ 11 标准
 set(CMAKE_CXX_STANDARD 11)
