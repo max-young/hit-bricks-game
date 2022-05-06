@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "Game.h"
+
 using std::cout; using std::endl;
 
 // 保持窗口和framebuffer大小一致
@@ -14,6 +16,8 @@ void processInput(GLFWwindow *window);
 
 constexpr unsigned int SCR_WIDTH = 1600;
 constexpr unsigned int SCR_HEIGHT = 1200;
+
+Game Max(SCR_WIDTH, SCR_HEIGHT);
 
 int main()
 {
@@ -50,6 +54,8 @@ int main()
     return -1;
   }
 
+  Max.Init();
+
   // 保持窗口打开, 接受用户输入, 不断绘制
   while (!glfwWindowShouldClose(window))
   {
@@ -60,6 +66,7 @@ int main()
     // 清空颜色缓冲并填充为深蓝绿色
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    Max.Render();
 
     // 将framebuffer的像素颜色值绘制到窗口
     glfwSwapBuffers(window);
