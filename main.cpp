@@ -7,7 +7,8 @@
 
 #include "Game.h"
 
-using std::cout; using std::endl;
+using std::cout;
+using std::endl;
 
 // 保持窗口和framebuffer大小一致
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
