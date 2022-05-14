@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "GameLevel.h"
+
 enum GameState
 {
   GAME_ACTIVE,
@@ -13,7 +15,9 @@ class Game
 public:
   // 游戏状态, 不同的状态渲染和处理不同的对象
   GameState State;
-  unsigned int Width, Height;
+  GLuint Width, Height;
+  vector<GameLevel> Levels;
+  GLuint Level;
 
   // constructor/deconstructor
   Game(unsigned int width, unsigned int height);
