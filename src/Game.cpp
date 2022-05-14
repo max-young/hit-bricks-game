@@ -1,3 +1,6 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Game.h"
@@ -54,7 +57,7 @@ void Game::Init()
   this->Levels.push_back(four);
   this->Level = 0;
 
-  glm::vec2 playerPos = glm::vec2(this->Width / 2.0f, this->Height - PLAYER_SIZE.y);
+  glm::vec2 playerPos = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
   Player = make_shared<GameObject>(GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle")));
 }
 
@@ -67,4 +70,26 @@ void Game::Render()
   }
   this->Levels[this->Level].Draw(*Renderer);
   Player->Draw(*Renderer);
+}
+
+void Game::ProcessInput(GLfloat dt)
+{
+  if (this->State == GAME_ACTIVE)
+  {
+    GLfloat velocity = PLAYER_VELOCITY * dt;
+    if (this->Keys[GLFW_KEY_A])
+    {
+      if(Player->Position.x >= 0)
+      {
+        Player->Position.x -= velocity;
+      }
+    }
+    if (this->Keys[GLFW_KEY_D])
+    {
+      if(Player->Position.x <= this->Width - Player->Size.x)
+      {
+        Player->Position.x += velocity;
+      }
+    }
+  }
 }

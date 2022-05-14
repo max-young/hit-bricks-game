@@ -15,6 +15,7 @@ class Game
 public:
   // 游戏状态, 不同的状态渲染和处理不同的对象
   GameState State;
+  GLboolean Keys[1024];
   GLuint Width, Height;
   vector<GameLevel> Levels;
   GLuint Level;
@@ -26,6 +27,8 @@ public:
   void Init();
 
   void Render();
+
+  void ProcessInput(GLfloat dt);
 };
 
 #endif

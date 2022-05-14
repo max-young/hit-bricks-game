@@ -13,10 +13,13 @@ using std::endl;
 // 保持窗口和framebuffer大小一致
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 // 接受用户输入
-void processInput(GLFWwindow *window);
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 constexpr unsigned int SCR_WIDTH = 1600;
 constexpr unsigned int SCR_HEIGHT = 1200;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 Game Max(SCR_WIDTH, SCR_HEIGHT);
 
@@ -47,6 +50,7 @@ int main()
   // 回调函数, 注册这个函数，告诉GLFW我们希望每当窗口调整大小的时候调用这个函数
   // 这个函数将窗口大小和framebuffer大小保持一致
   glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+  glfwSetKeyCallback(window, keyCallback);
 
   // 调用OpenGL函数之前需要初始化glad
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -60,14 +64,20 @@ int main()
   // 保持窗口打开, 接受用户输入, 不断绘制
   while (!glfwWindowShouldClose(window))
   {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     // 接受键盘输入
-    processInput(window);
+    // processInput(window);
 
     // 渲染指令
     // 清空颜色缓冲并填充为深蓝绿色
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     Max.Render();
+
+    Max.ProcessInput(deltaTime);
 
     // 将framebuffer的像素颜色值绘制到窗口
     glfwSwapBuffers(window);
@@ -88,9 +98,16 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
   glViewport(0, 0, width, height);
 }
 
-// 接受用户输入
-void processInput(GLFWwindow *window)
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);
+    // when a user presses the escape key, we set the WindowShouldClose property to true, closing the application
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS)
+            Max.Keys[key] = true;
+        else if (action == GLFW_RELEASE)
+            Max.Keys[key] = false;
+    }
 }
