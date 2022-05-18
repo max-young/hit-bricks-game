@@ -9,17 +9,21 @@
 class GameObject
 {
 public:
-  glm::vec2 Position;
-  glm::vec2 Size;
+  glm::vec2 position;
+  glm::vec2 size;
   glm::vec3 Color;
   GLfloat Rotation;
-  GLboolean IsSolid;
+  GLboolean isSolid;
   Texture2D Texture;
+  glm::vec2 velocity;
+  GLboolean destroyed = false;
 
   GameObject();
-  GameObject(glm::vec2 position, glm::vec2 size, Texture2D texture, glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f));
+  GameObject(glm::vec2 position, glm::vec2 size, Texture2D texture, glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2 velocity = glm::vec2(0.0f, 0.0f));
 
   virtual void Draw(SpriteRenderer &renderer);
 };
+
+GLboolean checkCollision(const GameObject &a, const GameObject &b);
 
 #endif

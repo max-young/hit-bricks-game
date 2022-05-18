@@ -1,9 +1,9 @@
 #include "GameLevel.h"
 
-void GameLevel::Load (const string &file, GLuint width, GLuint height)
+void GameLevel::Load(const string &file, GLuint width, GLuint height)
 {
   // 清空之前的数据
-  this->Bricks.clear();
+  this->bricks.clear();
   // 加载文件
   GLuint tileCode;
   string line;
@@ -22,7 +22,7 @@ void GameLevel::Load (const string &file, GLuint width, GLuint height)
       tileData.push_back(row);
     }
     if (tileData.size() > 0)
-      this -> init(tileData, width, height);
+      this->init(tileData, width, height);
   }
 }
 
@@ -43,8 +43,8 @@ void GameLevel::init(vector<vector<GLuint>> tileData, GLuint lvlWidth, GLuint lv
       if (tileData[y][x] == 1)
       {
         GameObject obj(pos, size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
-        obj.IsSolid = GL_TRUE;
-        this->Bricks.push_back(obj);
+        obj.isSolid = GL_TRUE;
+        this->bricks.push_back(obj);
       }
       else if (tileData[y][x] > 1)
       {
@@ -57,7 +57,7 @@ void GameLevel::init(vector<vector<GLuint>> tileData, GLuint lvlWidth, GLuint lv
           color = glm::vec3(0.8f, 0.8f, 0.4f);
         else if (tileData[y][x] == 5)
           color = glm::vec3(1.0f, 0.5f, 0.0f);
-        this->Bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color));
+        this->bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color));
       }
     }
   }
@@ -65,8 +65,9 @@ void GameLevel::init(vector<vector<GLuint>> tileData, GLuint lvlWidth, GLuint lv
 
 void GameLevel::Draw(SpriteRenderer &renderer)
 {
-  for (auto &brick : this->Bricks)
+  for (auto &brick : this->bricks)
   {
-    brick.Draw(renderer);
+    if (!brick.destroyed)
+      brick.Draw(renderer);
   }
 }

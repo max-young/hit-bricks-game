@@ -59,7 +59,7 @@ int main()
     return -1;
   }
 
-  Max.Init();
+  Max.init();
 
   // 保持窗口打开, 接受用户输入, 不断绘制
   while (!glfwWindowShouldClose(window))
@@ -68,16 +68,15 @@ int main()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    // 接受键盘输入
-    // processInput(window);
-
     // 渲染指令
     // 清空颜色缓冲并填充为深蓝绿色
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    Max.Render();
+    Max.render();
 
-    Max.ProcessInput(deltaTime);
+    Max.processInput(deltaTime);
+
+    Max.update(deltaTime);
 
     // 将framebuffer的像素颜色值绘制到窗口
     glfwSwapBuffers(window);
@@ -106,8 +105,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
     if (key >= 0 && key < 1024)
     {
         if (action == GLFW_PRESS)
-            Max.Keys[key] = true;
+            Max.keys[key] = true;
         else if (action == GLFW_RELEASE)
-            Max.Keys[key] = false;
+            Max.keys[key] = false;
     }
 }
