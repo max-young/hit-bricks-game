@@ -24,6 +24,4 @@ public:
   virtual void Draw(SpriteRenderer &renderer);
 };
 
-GLboolean checkCollision(const GameObject &a, const GameObject &b);
-
 #endif

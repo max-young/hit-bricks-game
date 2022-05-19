@@ -2,13 +2,32 @@
 #define GAME_H
 
 #include "GameLevel.h"
+#include "BallObject.h"
 
-enum GameState
+using std::tuple;
+using std::get;
+
+enum class GameState
 {
-  GAME_ACTIVE,
-  GAME_MENU,
-  GAME_WIN
+  ACTIVE,
+  MENU,
+  WIN
 };
+
+enum class Direction
+{
+  UP,
+  RIGHT,
+  DOWN,
+  LEFT
+};
+
+using Collision = tuple<GLboolean, Direction, glm::vec2>;
+
+GLboolean checkCollision(const GameObject &a, const GameObject &b);
+Collision checkCollision(const BallObject &a, const GameObject &b);
+Direction vectorDirection(glm::vec2 direction);
+
 
 class Game
 {

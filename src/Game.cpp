@@ -31,7 +31,7 @@ const GLfloat BALL_RADIUS = 12.5f;
 shared_ptr<BallObject> ball;
 
 Game::Game(unsigned int width, unsigned int height)
-    : state(GAME_ACTIVE), width(width), height(height)
+    : state(GameState::ACTIVE), width(width), height(height)
 {
 }
 
@@ -78,7 +78,7 @@ void Game::init()
 
 void Game::render()
 {
-  if (this->state == GAME_ACTIVE)
+  if (this->state == GameState::ACTIVE)
   {
     Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0, 0), glm::vec2(this->width, this->height), 0.0f);
     this->levels[this->level].Draw(*Renderer);
@@ -89,7 +89,7 @@ void Game::render()
 
 void Game::processInput(GLfloat dt)
 {
-  if (this->state == GAME_ACTIVE)
+  if (this->state == GameState::ACTIVE)
   {
     GLfloat velocity = PLAYER_VELOCITY * dt;
     if (this->keys[GLFW_KEY_A])
@@ -125,11 +125,32 @@ void Game::doCollision()
   {
     if (!box.destroyed)
     {
-      if (checkCollision(*ball, box))
+      Collision collision = checkCollision(*ball, box);
+      if (get<0>(collision))
       {
         if (!box.isSolid)
         {
           box.destroyed = true;
+        }
+        Direction direction = get<1>(collision);
+        glm::vec2 diffVector = get<2>(collision);
+        if (direction == Direction::UP || direction == Direction::DOWN)
+        {
+          ball->velocity.y *= -1;
+          GLfloat penetration = ball->radius - abs(diffVector.y);
+          if (direction == Direction::UP)
+            ball->position.y -= penetration;
+          else if (direction == Direction::DOWN)
+            ball->position.y += penetration;
+        }
+        else if (direction == Direction::LEFT || direction == Direction::RIGHT)
+        {
+          ball->velocity.x *= -1;
+          GLfloat penetration = ball->radius - abs(diffVector.x);
+          if (direction == Direction::LEFT)
+            ball->position.x += penetration;
+          else if (direction == Direction::RIGHT)
+            ball->position.x -= penetration;
         }
       }
     }
@@ -140,4 +161,49 @@ void Game::update(GLfloat dt)
 {
   ball->move(dt, this->width);
   this->doCollision();
+}
+
+
+GLboolean checkCollision(const GameObject &a, const GameObject &b)
+{
+  GLboolean collisionX = (a.position.x + a.size.x >= b.position.x) && (b.position.x + b.size.x >= a.position.x);
+  GLboolean collisionY = (a.position.y + a.size.y >= b.position.y) && (b.position.y + b.size.y >= a.position.y);
+  return collisionX && collisionY;
+}
+
+Collision checkCollision(const BallObject &a, const GameObject &b)
+{
+  // 圆的中心
+  glm::vec2 center(a.position + a.radius);
+  // AABB的半边长和中心
+  glm::vec2 aabbHalfExtents(b.size.x / 2.0f, b.size.y / 2.0f);
+  glm::vec2 aabbCenter(b.position.x + aabbHalfExtents.x, b.position.y + aabbHalfExtents.y);
+  // 获取两个中心的差矢量
+  glm::vec2 difference = center - aabbCenter;
+  glm::vec2 clamped = glm::clamp(difference, -aabbHalfExtents, aabbHalfExtents);
+  glm::vec2 closest = aabbCenter + clamped;
+  difference = closest - center;
+  if (glm::length(difference) < a.radius)
+    return Collision{GL_TRUE, vectorDirection(difference), difference};
+  else
+    return Collision{GL_FALSE, Direction::UP, glm::vec2(0, 0)};
+}
+
+Direction vectorDirection(glm::vec2 direction)
+{
+  glm::vec2 normalDirection = normalize(direction);
+  if (abs(normalDirection.x) < abs(normalDirection.y))
+  {
+    if (normalDirection.y > 0.0f)
+      return Direction::UP;
+    else
+      return Direction::DOWN;
+  }
+  else
+  {
+    if (normalDirection.x > 0.0f)
+      return Direction::RIGHT;
+    else
+      return Direction::LEFT;
+  }
 }
