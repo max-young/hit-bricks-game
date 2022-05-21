@@ -155,12 +155,31 @@ void Game::doCollision()
       }
     }
   }
+  Collision result = checkCollision(*ball, *player);
+  if (!ball->stuck && get<0>(result))
+  {
+    GLfloat centerBoard = player->position.x + player->size.x / 2;
+    GLfloat distance = ball->position.x + ball->radius - centerBoard;
+    GLfloat percentage = distance / (player->size.x/2);
+    GLfloat strength = 2.0f;
+    glm::vec2 oldVelocity = ball->velocity;
+    ball->velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
+    ball->velocity.y = -1 * abs(ball->velocity.y);
+    ball->velocity = glm::normalize(ball->velocity) * glm::length(oldVelocity);
+  }
 }
 
 void Game::update(GLfloat dt)
 {
   ball->move(dt, this->width);
   this->doCollision();
+  if (ball->position.y > this->height)
+  {
+    this->resetLevel();
+    this->resetPlayer();
+  }
+  if (this->levels[this->level].bricks.empty())
+    this->level++;
 }
 
 
@@ -206,4 +225,31 @@ Direction vectorDirection(glm::vec2 direction)
     else
       return Direction::LEFT;
   }
+}
+
+void Game::resetLevel()
+{
+  switch (this->level)
+  {
+    case 0:
+      this->levels[this->level].Load(FileSystem::getPath("levels/one.lvl"), this->width, this->height * 0.5f);
+      break;
+    case 1:
+      this->levels[this->level].Load(FileSystem::getPath("levels/two.lvl"), this->width, this->height * 0.5f);
+      break;
+    case 2:
+      this->levels[this->level].Load(FileSystem::getPath("levels/three.lvl"), this->width, this->height * 0.5f);
+      break;
+    case 3:
+      this->levels[this->level].Load(FileSystem::getPath("levels/four.lvl"), this->width, this->height * 0.5f);
+      break;
+  }
+}
+
+void Game::resetPlayer()
+{
+  glm::vec2 playerPos = glm::vec2(this->width / 2.0f - PLAYER_SIZE.x / 2.0f, this->height - PLAYER_SIZE.y);
+  player->position = playerPos;
+  ball->position = playerPos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
+  ball->stuck = true;
 }
