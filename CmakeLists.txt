@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(MaxGame VERSION 0.1.0)
 
-# 使用 C++ 11 标准
-set(CMAKE_CXX_STANDARD 11)
+# 使用 C++ 14 标准
+set(CMAKE_CXX_STANDARD 14)
 
 # 配置文件
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
@@ -20,7 +20,7 @@ set(GLFW_LINK /usr/local/Cellar/glfw/3.3.4/lib/libglfw.3.dylib)
 link_libraries(${GLFW_LINK})
 
 # 执行编译命令
-set(SOURCES main.cpp src/glad.c src/Game.cpp src/SpriteRenderer.cpp src/ResourceManager.cpp src/stb_image.cpp src/Texture.cpp src/Shader.cpp src/GameLevel.cpp src/GameObject.cpp src/BallObject.cpp)
+set(SOURCES main.cpp src/glad.c src/Game.cpp src/SpriteRenderer.cpp src/ResourceManager.cpp src/stb_image.cpp src/Texture.cpp src/Shader.cpp src/GameLevel.cpp src/GameObject.cpp src/BallObject.cpp src/Particle.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # 链接系统的 OpenGL 框架

@@ -24,6 +24,7 @@ public:
   // 从文件里加载级别数据
   void Load(const string &file, GLuint width, GLuint height);
   void Draw(SpriteRenderer &renderer);
+  GLboolean isCompleted();
 
 private:
   // 根据文件添加砖块到bricks中

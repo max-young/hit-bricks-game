@@ -42,7 +42,7 @@ void GameLevel::init(vector<vector<GLuint>> tileData, GLuint lvlWidth, GLuint lv
       glm::vec2 size(unitWidth, unitHeight);
       if (tileData[y][x] == 1)
       {
-        GameObject obj(pos, size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
+        GameObject obj(pos, size, ResourceManager::getTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
         obj.isSolid = GL_TRUE;
         this->bricks.push_back(obj);
       }
@@ -57,7 +57,7 @@ void GameLevel::init(vector<vector<GLuint>> tileData, GLuint lvlWidth, GLuint lv
           color = glm::vec3(0.8f, 0.8f, 0.4f);
         else if (tileData[y][x] == 5)
           color = glm::vec3(1.0f, 0.5f, 0.0f);
-        this->bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color));
+        this->bricks.push_back(GameObject(pos, size, ResourceManager::getTexture("block"), color));
       }
     }
   }
@@ -70,4 +70,14 @@ void GameLevel::Draw(SpriteRenderer &renderer)
     if (!brick.destroyed)
       brick.Draw(renderer);
   }
+}
+
+GLboolean GameLevel::isCompleted()
+{
+  for (auto &brick : this->bricks)
+  {
+    if (!brick.isSolid && !brick.destroyed)
+      return GL_FALSE;
+  }
+  return GL_TRUE;
 }

@@ -21,14 +21,14 @@ public:
   static map<string, Texture2D> Textures;
 
   // 根据shader文件创建shader, 并存储在Shaders中
-  static Shader LoadShader(const string &vShaderFile, const string &fShaderFile, const string &gShaderFile, string name);
+  static Shader loadShader(const string &vShaderFile, const string &fShaderFile, const string &gShaderFile, string name);
   // 根据shader name获取Shader
-  static Shader GetShader(const string &name);
+  static Shader getShader(const string &name);
 
   // 根据texture文件创建texture, 并存储在Textures中
-  static Texture2D LoadTexture(const string &file, bool alpha, string name);
+  static Texture2D loadTexture(const string &file, bool alpha, string name);
   // 根据texture name获取Texture2D
-  static Texture2D GetTexture(const string &name);
+  static Texture2D getTexture(const string &name);
 
 private:
   ResourceManager(){};

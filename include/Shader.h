@@ -22,9 +22,11 @@ public:
   // 编译创建shader
   void Compile(const string vertexSource, const string fragmentSource, const string geometrySource = "");
 
-  void SetInteger(const string &name, int value);
-  void SetVector3f(const string &name, const glm::vec3 &value);
-  void SetMatrix4(const string &name, const glm::mat4 &matrix);
+  void setInteger(const string &name, int value);
+  void setVector2f(const string &name, const glm::vec2 &value);
+  void setVector3f(const string &name, const glm::vec3 &value);
+  void setVector4f(const string &name, const glm::vec4 &value);
+  void setMatrix4(const string &name, const glm::mat4 &matrix);
 
 private:
   // 检查shader编译错误

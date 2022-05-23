@@ -17,24 +17,24 @@ using std::string;
 map<string, Shader> ResourceManager::Shaders;
 map<string, Texture2D> ResourceManager::Textures;
 
-Shader ResourceManager::LoadShader(const string &vShaderFile, const string &fShaderFile, const string &gShaderFile, string name)
+Shader ResourceManager::loadShader(const string &vShaderFile, const string &fShaderFile, const string &gShaderFile, string name)
 {
   Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
   return Shaders[name];
 }
 
-Shader ResourceManager::GetShader(const string &name)
+Shader ResourceManager::getShader(const string &name)
 {
   return Shaders[name];
 }
 
-Texture2D ResourceManager::LoadTexture(const string &file, bool alpha, string name)
+Texture2D ResourceManager::loadTexture(const string &file, bool alpha, string name)
 {
   Textures[name] = loadTextureFromFile(file, alpha);
   return Textures[name];
 }
 
-Texture2D ResourceManager::GetTexture(const string &name)
+Texture2D ResourceManager::getTexture(const string &name)
 {
   return Textures[name];
 }

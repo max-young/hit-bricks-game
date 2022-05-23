@@ -8,27 +8,29 @@
 #include "SpriteRenderer.h"
 #include "FileSystem.h"
 #include "BallObject.h"
+#include "Particle.h"
 
-// #include <memory>
+using std::make_unique;
+using std::unique_ptr;
 
-using std::make_shared;
-using std::shared_ptr;
-
-shared_ptr<SpriteRenderer> Renderer;
+unique_ptr<SpriteRenderer> Renderer;
 
 // 初始化挡板的大小
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 // 初始化挡板的速度
 const GLfloat PLAYER_VELOCITY(500.0f);
 
-shared_ptr<GameObject> player;
+unique_ptr<GameObject> player;
 
 // 初始化球的速度
 const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 // 球的半径
 const GLfloat BALL_RADIUS = 12.5f;
 
-shared_ptr<BallObject> ball;
+unique_ptr<BallObject> ball;
+
+// 球的火焰
+unique_ptr<ParticleGenerator> particles;
 
 Game::Game(unsigned int width, unsigned int height)
     : state(GameState::ACTIVE), width(width), height(height)
@@ -38,21 +40,27 @@ Game::Game(unsigned int width, unsigned int height)
 void Game::init()
 {
   // 加载shader
-  ResourceManager::LoadShader(FileSystem::getPath("shaders/sprite.vs"), FileSystem::getPath("shaders/sprite.fs"), "", "sprite");
+  ResourceManager::loadShader(FileSystem::getPath("shaders/sprite.vs"), FileSystem::getPath("shaders/sprite.fs"), "", "sprite");
+  ResourceManager::loadShader(FileSystem::getPath("shaders/particle.vs"), FileSystem::getPath("shaders/particle.fs"), "", "particle");
+  
   // 正摄投影矩阵. 因为是2D游戏, 摄像机相当于在窗口中央不动, object已经在摄像机坐标系下, 只需做投影变换到[-1, 1]*[-1, 1]的canonical坐标系下
   glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(this->width), static_cast<GLfloat>(this->height), 0.0f, -1.0f, 1.0f);
-  Shader spriteShader = ResourceManager::GetShader("sprite");
+  Shader spriteShader = ResourceManager::getShader("sprite");
   spriteShader.use();
-  spriteShader.SetInteger("image", 0);
-  spriteShader.SetMatrix4("projection", projection);
+  spriteShader.setInteger("image", 0);
+  spriteShader.setMatrix4("projection", projection);
+  Shader particleShader = ResourceManager::getShader("particle");
+  particleShader.use();
+  particleShader.setMatrix4("projection", projection);
 
-  Renderer = make_shared<SpriteRenderer>(SpriteRenderer(spriteShader));
+  Renderer = make_unique<SpriteRenderer>(SpriteRenderer(spriteShader));
 
-  ResourceManager::LoadTexture(FileSystem::getPath("textures/awesomeface.png"), GL_TRUE, "face");
-  ResourceManager::LoadTexture(FileSystem::getPath("textures/background.jpg"), GL_FALSE, "background");
-  ResourceManager::LoadTexture(FileSystem::getPath("textures/block.png"), GL_FALSE, "block");
-  ResourceManager::LoadTexture(FileSystem::getPath("textures/block_solid.png"), GL_FALSE, "block_solid");
-  ResourceManager::LoadTexture(FileSystem::getPath("textures/paddle.png"), GL_TRUE, "paddle");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/awesomeface.png"), GL_TRUE, "face");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/background.jpg"), GL_FALSE, "background");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/block.png"), GL_FALSE, "block");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/block_solid.png"), GL_FALSE, "block_solid");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/paddle.png"), GL_TRUE, "paddle");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/particle.png"), GL_TRUE, "particle");
 
   GameLevel one;
   one.Load(FileSystem::getPath("levels/one.lvl"), this->width, this->height * 0.5f);
@@ -70,19 +78,22 @@ void Game::init()
   this->level = 0;
 
   glm::vec2 playerPos = glm::vec2(this->width / 2.0f - PLAYER_SIZE.x / 2.0f, this->height - PLAYER_SIZE.y);
-  player = make_shared<GameObject>(GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle")));
+  player = make_unique<GameObject>(GameObject(playerPos, PLAYER_SIZE, ResourceManager::getTexture("paddle")));
 
   glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
-  ball = make_shared<BallObject>(BallObject(ballPos, BALL_RADIUS, ResourceManager::GetTexture("face"), INITIAL_BALL_VELOCITY));
+  ball = make_unique<BallObject>(BallObject(ballPos, BALL_RADIUS, ResourceManager::getTexture("face"), INITIAL_BALL_VELOCITY));
+
+  particles = make_unique<ParticleGenerator>(ParticleGenerator(ResourceManager::getShader("particle"), ResourceManager::getTexture("particle"), 500));
 }
 
 void Game::render()
 {
   if (this->state == GameState::ACTIVE)
   {
-    Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0, 0), glm::vec2(this->width, this->height), 0.0f);
+    Renderer->DrawSprite(ResourceManager::getTexture("background"), glm::vec2(0, 0), glm::vec2(this->width, this->height), 0.0f);
     this->levels[this->level].Draw(*Renderer);
     player->Draw(*Renderer);
+    particles->draw();
     ball->Draw(*Renderer);
   }
 }
@@ -172,14 +183,18 @@ void Game::doCollision()
 void Game::update(GLfloat dt)
 {
   ball->move(dt, this->width);
+  particles->update(dt, *ball, 2, glm::vec2(ball->radius / 2));
   this->doCollision();
   if (ball->position.y > this->height)
   {
     this->resetLevel();
     this->resetPlayer();
   }
-  if (this->levels[this->level].bricks.empty())
+  if (this->levels[this->level].isCompleted())
+  {
     this->level++;
+    this->resetPlayer();
+  }
 }
 
 
