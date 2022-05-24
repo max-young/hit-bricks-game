@@ -87,7 +87,7 @@ Texture2D ResourceManager::loadTextureFromFile(const string &file, bool alpha)
   int width, height, nrChannels;
   unsigned char *data = stbi_load(file.c_str(), &width, &height, &nrChannels, 0);
   // 创建纹理
-  texture.Generate(width, height, data);
+  texture.generate(width, height, data);
   // 释放文件
   stbi_image_free(data);
   return texture;

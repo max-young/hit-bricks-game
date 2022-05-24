@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <glm/gtc/matrix_transform.hpp>
+#include <irrKlang/irrKlang.h>
 
 #include "Game.h"
 #include "ResourceManager.h"
@@ -9,9 +9,13 @@
 #include "FileSystem.h"
 #include "BallObject.h"
 #include "Particle.h"
+#include "PostProcessor.h"
 
 using std::make_unique;
 using std::unique_ptr;
+
+using irrklang::ISoundEngine;
+using irrklang::createIrrKlangDevice;
 
 unique_ptr<SpriteRenderer> Renderer;
 
@@ -32,6 +36,11 @@ unique_ptr<BallObject> ball;
 // 球的火焰
 unique_ptr<ParticleGenerator> particles;
 
+unique_ptr<PostProcessor> effects;
+GLfloat shakeTime = 0.0f;
+
+unique_ptr<ISoundEngine> soundEngine(createIrrKlangDevice());
+
 Game::Game(unsigned int width, unsigned int height)
     : state(GameState::ACTIVE), width(width), height(height)
 {
@@ -42,7 +51,8 @@ void Game::init()
   // 加载shader
   ResourceManager::loadShader(FileSystem::getPath("shaders/sprite.vs"), FileSystem::getPath("shaders/sprite.fs"), "", "sprite");
   ResourceManager::loadShader(FileSystem::getPath("shaders/particle.vs"), FileSystem::getPath("shaders/particle.fs"), "", "particle");
-  
+  ResourceManager::loadShader(FileSystem::getPath("shaders/postprocessor.vs"), FileSystem::getPath("shaders/postprocessor.fs"), "", "postprocessor");
+
   // 正摄投影矩阵. 因为是2D游戏, 摄像机相当于在窗口中央不动, object已经在摄像机坐标系下, 只需做投影变换到[-1, 1]*[-1, 1]的canonical坐标系下
   glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(this->width), static_cast<GLfloat>(this->height), 0.0f, -1.0f, 1.0f);
   Shader spriteShader = ResourceManager::getShader("sprite");
@@ -84,17 +94,24 @@ void Game::init()
   ball = make_unique<BallObject>(BallObject(ballPos, BALL_RADIUS, ResourceManager::getTexture("face"), INITIAL_BALL_VELOCITY));
 
   particles = make_unique<ParticleGenerator>(ParticleGenerator(ResourceManager::getShader("particle"), ResourceManager::getTexture("particle"), 500));
+
+  effects = make_unique<PostProcessor>(PostProcessor(ResourceManager::getShader("postprocessor"), this->width, this->height));
+
+  soundEngine->play2D(FileSystem::getPath("media/irreducible.ogg").c_str(), true);
 }
 
 void Game::render()
 {
   if (this->state == GameState::ACTIVE)
   {
+    effects->beginRender();
     Renderer->DrawSprite(ResourceManager::getTexture("background"), glm::vec2(0, 0), glm::vec2(this->width, this->height), 0.0f);
     this->levels[this->level].Draw(*Renderer);
     player->Draw(*Renderer);
     particles->draw();
     ball->Draw(*Renderer);
+    effects->endRender();
+    effects->render(glfwGetTime());
   }
 }
 
@@ -142,6 +159,13 @@ void Game::doCollision()
         if (!box.isSolid)
         {
           box.destroyed = true;
+          soundEngine->play2D(FileSystem::getPath("media/collision.ogg").c_str(), false);
+        }
+        else
+        {
+          shakeTime = 0.05f;
+          effects->shake = true;
+          soundEngine->play2D(FileSystem::getPath("media/solid.ogg").c_str(), false);
         }
         Direction direction = get<1>(collision);
         glm::vec2 diffVector = get<2>(collision);
@@ -171,12 +195,13 @@ void Game::doCollision()
   {
     GLfloat centerBoard = player->position.x + player->size.x / 2;
     GLfloat distance = ball->position.x + ball->radius - centerBoard;
-    GLfloat percentage = distance / (player->size.x/2);
+    GLfloat percentage = distance / (player->size.x / 2);
     GLfloat strength = 2.0f;
     glm::vec2 oldVelocity = ball->velocity;
     ball->velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
     ball->velocity.y = -1 * abs(ball->velocity.y);
     ball->velocity = glm::normalize(ball->velocity) * glm::length(oldVelocity);
+    soundEngine->play2D(FileSystem::getPath("media/paddle.ogg").c_str(), false);
   }
 }
 
@@ -195,8 +220,13 @@ void Game::update(GLfloat dt)
     this->level++;
     this->resetPlayer();
   }
+  if (shakeTime > 0)
+  {
+    shakeTime -= dt;
+    if (shakeTime <= 0.0f)
+      effects->shake = false;
+  }
 }
-
 
 GLboolean checkCollision(const GameObject &a, const GameObject &b)
 {
@@ -246,18 +276,18 @@ void Game::resetLevel()
 {
   switch (this->level)
   {
-    case 0:
-      this->levels[this->level].Load(FileSystem::getPath("levels/one.lvl"), this->width, this->height * 0.5f);
-      break;
-    case 1:
-      this->levels[this->level].Load(FileSystem::getPath("levels/two.lvl"), this->width, this->height * 0.5f);
-      break;
-    case 2:
-      this->levels[this->level].Load(FileSystem::getPath("levels/three.lvl"), this->width, this->height * 0.5f);
-      break;
-    case 3:
-      this->levels[this->level].Load(FileSystem::getPath("levels/four.lvl"), this->width, this->height * 0.5f);
-      break;
+  case 0:
+    this->levels[this->level].Load(FileSystem::getPath("levels/one.lvl"), this->width, this->height * 0.5f);
+    break;
+  case 1:
+    this->levels[this->level].Load(FileSystem::getPath("levels/two.lvl"), this->width, this->height * 0.5f);
+    break;
+  case 2:
+    this->levels[this->level].Load(FileSystem::getPath("levels/three.lvl"), this->width, this->height * 0.5f);
+    break;
+  case 3:
+    this->levels[this->level].Load(FileSystem::getPath("levels/four.lvl"), this->width, this->height * 0.5f);
+    break;
   }
 }
 

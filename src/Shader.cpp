@@ -15,6 +15,11 @@ void Shader::setInteger(const string &name, int value)
   glUniform1i(glGetUniformLocation(this->ID, name.c_str()), value);
 }
 
+void Shader::setFloat(const string &name, float value)
+{
+  glUniform1f(glGetUniformLocation(this->ID, name.c_str()), value);
+}
+
 void Shader::setVector2f(const string &name, const glm::vec2 &value)
 {
   glUniform2f(glGetUniformLocation(this->ID, name.c_str()), value.x, value.y);

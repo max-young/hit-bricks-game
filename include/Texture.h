@@ -18,7 +18,7 @@ public:
   Texture2D();
 
   // 生成texture
-  void Generate(unsigned int width, unsigned int height, unsigned char *data);
+  void generate(unsigned int width, unsigned int height, unsigned char *data);
   void bind() const; // 绑定texture到当前render program
 };
 

@@ -15,8 +15,8 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 // 接受用户输入
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
-constexpr unsigned int SCR_WIDTH = 1600;
-constexpr unsigned int SCR_HEIGHT = 1200;
+constexpr unsigned int SCR_WIDTH = 1440;
+constexpr unsigned int SCR_HEIGHT = 900;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;

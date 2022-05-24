@@ -23,6 +23,7 @@ public:
   void Compile(const string vertexSource, const string fragmentSource, const string geometrySource = "");
 
   void setInteger(const string &name, int value);
+  void setFloat(const string &name, float value);
   void setVector2f(const string &name, const glm::vec2 &value);
   void setVector3f(const string &name, const glm::vec3 &value);
   void setVector4f(const string &name, const glm::vec4 &value);
