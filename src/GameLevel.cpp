@@ -50,13 +50,13 @@ void GameLevel::init(vector<vector<GLuint>> tileData, GLuint lvlWidth, GLuint lv
       {
         glm::vec3 color(1.0f, 1.0f, 1.0f);
         if (tileData[y][x] == 2)
-          color = glm::vec3(0.2f, 0.6f, 1.0f);
+          color = glm::vec3(253.0f, 0.0f, 0.0f) / 255.0f;
         else if (tileData[y][x] == 3)
-          color = glm::vec3(0.0f, 0.7f, 0.0f);
+          color = glm::vec3(72.0f, 183.0f, 51.0f) / 255.0f;
         else if (tileData[y][x] == 4)
-          color = glm::vec3(0.8f, 0.8f, 0.4f);
+          color = glm::vec3(177.0f, 120.0f, 0.0f) / 255.0f;
         else if (tileData[y][x] == 5)
-          color = glm::vec3(1.0f, 0.5f, 0.0f);
+          color = glm::vec3(255.0f, 255.0f, 255.0f) / 255.0f;
         this->bricks.push_back(GameObject(pos, size, ResourceManager::getTexture("block"), color));
       }
     }

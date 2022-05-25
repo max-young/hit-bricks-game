@@ -65,8 +65,8 @@ void Game::init()
 
   Renderer = make_unique<SpriteRenderer>(SpriteRenderer(spriteShader));
 
-  ResourceManager::loadTexture(FileSystem::getPath("textures/awesomeface.png"), GL_TRUE, "face");
-  ResourceManager::loadTexture(FileSystem::getPath("textures/background.jpg"), GL_FALSE, "background");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/player1.png"), GL_TRUE, "player");
+  ResourceManager::loadTexture(FileSystem::getPath("textures/switch2.jpg"), GL_FALSE, "background");
   ResourceManager::loadTexture(FileSystem::getPath("textures/block.png"), GL_FALSE, "block");
   ResourceManager::loadTexture(FileSystem::getPath("textures/block_solid.png"), GL_FALSE, "block_solid");
   ResourceManager::loadTexture(FileSystem::getPath("textures/paddle.png"), GL_TRUE, "paddle");
@@ -91,13 +91,13 @@ void Game::init()
   player = make_unique<GameObject>(GameObject(playerPos, PLAYER_SIZE, ResourceManager::getTexture("paddle")));
 
   glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
-  ball = make_unique<BallObject>(BallObject(ballPos, BALL_RADIUS, ResourceManager::getTexture("face"), INITIAL_BALL_VELOCITY));
+  ball = make_unique<BallObject>(BallObject(ballPos, BALL_RADIUS, ResourceManager::getTexture("player"), INITIAL_BALL_VELOCITY));
 
   particles = make_unique<ParticleGenerator>(ParticleGenerator(ResourceManager::getShader("particle"), ResourceManager::getTexture("particle"), 500));
 
   effects = make_unique<PostProcessor>(PostProcessor(ResourceManager::getShader("postprocessor"), this->width, this->height));
 
-  soundEngine->play2D(FileSystem::getPath("media/irreducible.ogg").c_str(), true);
+  soundEngine->play2D(FileSystem::getPath("media/background.ogg").c_str(), true);
 }
 
 void Game::render()
@@ -120,7 +120,7 @@ void Game::processInput(GLfloat dt)
   if (this->state == GameState::ACTIVE)
   {
     GLfloat velocity = PLAYER_VELOCITY * dt;
-    if (this->keys[GLFW_KEY_A])
+    if (this->keys[GLFW_KEY_LEFT])
     {
       if (player->position.x >= 0)
       {
@@ -131,7 +131,7 @@ void Game::processInput(GLfloat dt)
         }
       }
     }
-    if (this->keys[GLFW_KEY_D])
+    if (this->keys[GLFW_KEY_RIGHT])
     {
       if (player->position.x <= this->width - player->size.x)
       {
