@@ -2,6 +2,9 @@
 <img src="media/hitbricksgame.png" style="width:80%;">
 </p>
 
+A 2D game developed with C++ and OpenGL, although it is 2D, it reflects a lot of knowledge of computer graphics and OpenGL development methods.  
+This project uses framebuffer and irrKlang to achieve some interesting effects, enjoy it.
+
 ### environment
 
 MacOS
