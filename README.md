@@ -1,4 +1,6 @@
-![](media/hitbricksgame.png)
+<p align="center">
+<img src="media/hitbricksgame.png" style="max-width:80%;">
+</p>
 
 ### environment
 
