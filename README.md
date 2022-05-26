@@ -1,5 +1,5 @@
 <p align="center">
-<img src="media/hitbricksgame.png" style="max-width:80%;">
+<img src="media/hitbricksgame.png" style="max-width:60%;">
 </p>
 
 ### environment
